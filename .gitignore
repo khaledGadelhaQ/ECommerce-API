@@ -2,7 +2,7 @@
 /dist
 /node_modules
 /build
-
+/config
 # Logs
 logs
 *.log
@@ -37,6 +37,8 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
+development.env
+production.env
 .env.development.local
 .env.test.local
 .env.production.local
