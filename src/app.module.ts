@@ -4,10 +4,10 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import * as path from 'path';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: path.resolve(
@@ -15,6 +15,8 @@ import * as path from 'path';
         `../config/${process.env.NODE_ENV || 'development'}.env`,
       ),
     }),
+    MongooseModule.forRoot(process.env.DATABASE_URI),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
