@@ -13,6 +13,20 @@ export class User {
 
   @Prop({ required: true })
   password: string;
+
+  id?: string;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+const UserSchema = SchemaFactory.createForClass(User);
+
+// Create a virtual 'id' field that maps to '_id'
+UserSchema.virtual('id').get(function () {
+  return this._id.toHexString();
+});
+
+// Ensure the virtual field is included in JSON responses
+UserSchema.set('toJSON', {
+  virtuals: true,
+});
+
+export { UserSchema };
