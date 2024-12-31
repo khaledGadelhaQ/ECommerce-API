@@ -9,12 +9,6 @@ import { Role } from 'src/auth/roles.enum';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UsersService) {}
-
-  @Public()
-  @Post()
-  async createUser(@Body() createUserdto : CreateUserDTO){
-    return await this.userService.createUser(createUserdto);
-  }
  
   @Public()
   @Get()
