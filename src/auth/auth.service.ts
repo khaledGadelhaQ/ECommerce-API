@@ -1,14 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Request,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDTO } from './dto/register.dto';
+import { EmailService } from '../common/email';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async generateToken(user) {
@@ -37,15 +47,51 @@ export class AuthService {
     // Use the UsersService to create the user
     const newUser = await this.usersService.createUser(registerDto);
 
-    // Return a success response
-    const accessToken = await this.generateToken(newUser);
     return {
       message: 'User registered successfully',
-      access_token: accessToken,
-      user: {
-        email: newUser.email,
-        role: newUser.role,
-      },
     };
+  }
+
+  async sendVerificationEmail(email: string) {
+    const user = await this.usersService.findOne(email);
+    if (!user) {
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+    }
+
+    if (user.isVerified) {
+      throw new HttpException(
+        'Email is already verified.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const payload = { sub: user.id, email: user.email };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('JWT_EMAIL_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_EMAIL_EXPIRES_IN'),
+    });
+
+    const baseURL = this.configService.get<string>('APP_URL');
+    const verificationEmailURL = `${baseURL}auth/verify-email/${token}`;
+
+    await this.emailService.sendVerificationEmail(user, verificationEmailURL);
+
+    return { message: 'Verification email sent successfully.' };
+  }
+
+  async verifyEmail(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_EMAIL_SECRET'),
+      });
+      const user = await this.usersService.findOne(decoded.email);
+      if (!user || user.isVerified) {
+        return false;
+      }
+      await this.usersService.updateUser(user.id, { isVerified: true });
+    } catch (error) {
+      return false;
+    }
+    return true;
   }
 }

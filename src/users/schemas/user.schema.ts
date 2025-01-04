@@ -18,6 +18,12 @@ export class User {
   @Prop({ type: String, enum: Role, default: Role.Customer })
   role: Role;
 
+  @Prop({ type: Boolean, default: true})
+  active: Boolean;
+
+  @Prop({ type: Boolean, default: false})
+  isVerified: Boolean;
+  
   id?: string;
 }
 

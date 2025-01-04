@@ -24,9 +24,14 @@ export class UsersService {
     return await this.userModel.find().exec();
   }
 
-  async findOne(username: string): Promise<User> {
-    return await this.userModel.findOne({ username }).exec();
+  async findOne(email: string): Promise<User> {
+    return await this.userModel.findOne({ email }).exec();
   }
+
+  async updateUser(userId: string, updateData: Partial<User>) {
+    await this.userModel.findByIdAndUpdate(userId, updateData, { new: true });
+  }
+  
 
   async createUser(registerDto: RegisterDTO): Promise<User> {
     // Check if a user with the given email already exists
