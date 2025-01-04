@@ -31,6 +31,9 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid Credentials');
     }
+    if(!user.isVerified) {
+      throw new UnauthorizedException('Verify your email to get full access!');
+    }
     const accessToken = await this.generateToken(user);
     return {
       access_token: accessToken,

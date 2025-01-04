@@ -7,16 +7,7 @@ export class EmailService {
   private transporter;
 
   constructor(private readonly configService: ConfigService) {
-    const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
-
-    // Configure the transporter based on the environment
-    this.transporter = isProduction
-      ? this.createProductionTransporter()
-      : this.createDevelopmentTransporter();
-  }
-
-  private createDevelopmentTransporter() {
-    return nodemailer.createTransport({
+    this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('EMAIL_HOST'),
       port: this.configService.get<number>('EMAIL_PORT'),
       auth: {
@@ -24,11 +15,6 @@ export class EmailService {
         pass: this.configService.get<string>('EMAIL_PASSWORD'),
       },
     });
-  }
-
-  private createProductionTransporter() {
-    // TODO: Add production email configuration here (e.g., AWS SES, SendGrid, etc.)
-    throw new Error('Production email transporter is not configured.');
   }
 
   async sendEmail({
@@ -51,9 +37,7 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log(`Email sent to ${to}`);
     } catch (error) {
-      console.error(`Failed to send email: ${error.message}`);
       throw new Error('Could not send email.');
     }
   }
