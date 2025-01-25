@@ -28,6 +28,9 @@ export class CatchEverythingFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(request),
       ...(isDevelopment && {
+        error: exception instanceof Error ? exception : 'Unknown error',
+      }),
+      ...(!isDevelopment && {
         error: exception instanceof Error ? exception.message : 'Unknown error',
       }),
     };
