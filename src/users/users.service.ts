@@ -1,16 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { RegisterDTO } from 'src/auth/dto/register.dto';
 import * as bcrypt from 'bcrypt';
 
-
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userModel.findOne({ email }).exec();
@@ -24,20 +21,24 @@ export class UsersService {
     return await this.userModel.find().exec();
   }
 
-  async findOne(email: string): Promise<User> {
-    return await this.userModel.findOne({ email }).exec();
+  async findOne(query: any): Promise<UserDocument | null> {
+    return await this.userModel.findOne(query).exec();
   }
 
-  async updateUser(userId: string, updateData: Partial<User>) {
+  async updateUser(userId: string, updateData: Partial<UserDocument>) {
+    if (updateData?.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 13);
+    }
     await this.userModel.findByIdAndUpdate(userId, updateData, { new: true });
   }
-  
 
   async createUser(registerDto: RegisterDTO): Promise<User> {
     // Check if a user with the given email already exists
-    const existingUser = await this.userModel.findOne({ email: registerDto.email }).exec();
+    const existingUser = await this.userModel
+      .findOne({ email: registerDto.email })
+      .exec();
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new BadRequestException('User with this email already exists');
     }
 
     // Create a new user and save it to the database

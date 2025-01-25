@@ -10,6 +10,8 @@ import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RolesGuard } from './guards/roles.guard';
 import { EmailService } from 'src/common/email';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from 'src/users/schemas/user.schema';
 
 @Module({
   imports: [
@@ -20,9 +22,10 @@ import { EmailService } from 'src/common/email';
       inject: [ConfigService], // Inject ConfigService
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'), // Use ConfigService to get the secret
-        signOptions: { expiresIn: '60s' }, // Add additional options if needed
+        signOptions: { expiresIn: '1h' }, // Add additional options if needed
       }),
     }),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   providers: [
     EmailService,

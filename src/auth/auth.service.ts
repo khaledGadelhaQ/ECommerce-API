@@ -1,16 +1,18 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
-  Request,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { RegisterDTO } from './dto/register.dto';
 import { EmailService } from '../common/email';
 import { ConfigService } from '@nestjs/config';
+import { User } from 'src/users/schemas/user.schema';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -21,9 +23,9 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateToken(user) {
+  async generateToken(user: User) {
     const payload = { sub: user.id, email: user.email };
-    return await this.jwtService.sign(payload);
+    return this.jwtService.sign(payload);
   }
 
   async login(email: string, password: string) {
@@ -31,7 +33,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid Credentials');
     }
-    if(!user.isVerified) {
+    if (!user.isVerified) {
       throw new UnauthorizedException('Verify your email to get full access!');
     }
     const accessToken = await this.generateToken(user);
@@ -41,12 +43,6 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDTO) {
-    // Hash the password before saving the user
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-
-    // Replace the plain password with the hashed password
-    registerDto.password = hashedPassword;
-
     // Use the UsersService to create the user
     const newUser = await this.usersService.createUser(registerDto);
 
@@ -56,16 +52,13 @@ export class AuthService {
   }
 
   async sendVerificationEmail(email: string) {
-    const user = await this.usersService.findOne(email);
+    const user = await this.usersService.findOne({ email });
     if (!user) {
-      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found.');
     }
 
     if (user.isVerified) {
-      throw new HttpException(
-        'Email is already verified.',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Email is already verified.');
     }
 
     const payload = { sub: user.id, email: user.email };
@@ -87,7 +80,7 @@ export class AuthService {
       const decoded = this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_EMAIL_SECRET'),
       });
-      const user = await this.usersService.findOne(decoded.email);
+      const user = await this.usersService.findOne({ email: decoded.email });
       if (!user || user.isVerified) {
         return false;
       }
@@ -96,5 +89,46 @@ export class AuthService {
       return false;
     }
     return true;
+  }
+
+  async forgetPassword(email: string) {
+    const user = await this.usersService.findOne({ email });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const token = await user.createResetPasswordToken();
+    
+    const baseURL = this.configService.get<string>('APP_URL');
+    const resetPasswordEmailURL = `${baseURL}auth/reset-password/${token}`;
+    // send the resetYourPassword email
+    await this.emailService.sendResetPasswordEmail(user, resetPasswordEmailURL);
+
+    return {
+      message:
+        'A password reset email has been sent to your email address. Please check your inbox.',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await this.usersService.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      throw new BadRequestException('Token is invalid or has expired');
+    }
+
+    await this.usersService.updateUser(user.id, {
+      password: newPassword,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    });
+    
+    await this.emailService.sendPasswordResetConfirmation(user.email);
+    return {
+      message:
+        'Your password has been reset successfully! You can now log in with your new password.',
+    };
   }
 }

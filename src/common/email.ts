@@ -43,7 +43,7 @@ export class EmailService {
   }
 
   async sendVerificationEmail(user: { email: string }, url: string) {
-    const subject = 'Verify your email';
+    const subject = 'Verify your email - Made4U';
     const html = `
       <h1>Welcome!</h1>
       <p>Please verify your email address by clicking the link below:</p>
@@ -52,5 +52,43 @@ export class EmailService {
     `;
 
     await this.sendEmail({ to: user.email, subject, html });
+  }
+
+  async sendResetPasswordEmail(user: { email: string }, url: string) {
+    const subject = 'Reset Your Password - Made4U';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background-color: #f4f4f4; border-radius: 10px; color: #333;">
+        <h1 style="text-align: center; color: #4CAF50;">Password Reset Request</h1>
+        <p>Hi,</p>
+        <p>We received a request to reset your password. Click the button below to reset your password:</p>
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${url}" style="background-color: #4CAF50; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;">Reset Password</a>
+        </div>
+        <p>If you did not request a password reset, please ignore this email or contact our support team if you have any questions.</p>
+        <p>This link will expire in 10 minutes.</p>
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+        <p style="font-size: 12px; color: #666;">If the button above doesn't work, paste this link into your web browser:</p>
+        <p style="font-size: 12px; color: #666; word-wrap: break-word;">${url}</p>
+        <p style="font-size: 12px; color: #666;">Thank you for using Made4U!</p>
+      </div>
+    `;
+
+    await this.sendEmail({ to: user.email, subject, html });
+  }
+
+  async sendPasswordResetConfirmation(email: string) {
+    const subject = 'Your Password Has Been Changed Successfully';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background-color: #f4f4f4; border-radius: 10px; color: #333;">
+        <h1 style="text-align: center; color: #4CAF50;">Password Changed Successfully</h1>
+        <p>Hi,</p>
+        <p>Your password has been changed successfully. If you made this change, you can safely disregard this email.</p>
+        <p>If you did not request this change, please contact our support team immediately to secure your account.</p>
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 20px;">
+        <p style="font-size: 12px; color: #666;">Thank you for trusting Made4U!</p>
+      </div>
+    `;
+
+    await this.sendEmail({ to: email, subject, html });
   }
 }

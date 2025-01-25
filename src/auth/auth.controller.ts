@@ -12,10 +12,11 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
+import { newPasswordDTO } from './dto/newPassword.dto';
 
 @Controller('auth')
 @Public()
-export class AuthController {
+export class AuthController { 
   constructor(private authService: AuthService) {}
 
   @Post('login')
@@ -45,5 +46,18 @@ export class AuthController {
     return {
       message: 'Email verified successfully.',
     };
+  }
+
+  @Post('forget-password')
+  async forgetPassword(@Body('email') email: string) {
+    return await this.authService.forgetPassword(email);
+  }
+
+  @Post('reset-password/:token')
+  async resetPassword(
+    @Body() newPassword: newPasswordDTO,
+    @Param('token') token: string,
+  ) {
+    return this.authService.resetPassword(token, newPassword.password);
   }
 }
