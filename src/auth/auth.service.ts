@@ -24,7 +24,7 @@ export class AuthService {
   ) {}
 
   async generateToken(user: User) {
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     return this.jwtService.sign(payload);
   }
 
@@ -38,7 +38,17 @@ export class AuthService {
     }
     const accessToken = await this.generateToken(user);
     return {
-      access_token: accessToken,
+      status: 'success',
+      message: 'Login successful',
+      data: {
+        accessToken,
+        expiresIn: 3600,
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        },
+      },
     };
   }
 
@@ -72,7 +82,10 @@ export class AuthService {
 
     await this.emailService.sendVerificationEmail(user, verificationEmailURL);
 
-    return { message: 'Verification email sent successfully.' };
+    return {
+      status: 'success',
+      message: 'Verification email sent successfully.',
+    };
   }
 
   async verifyEmail(token: string) {
@@ -97,13 +110,14 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const token = await user.createResetPasswordToken();
-    
+
     const baseURL = this.configService.get<string>('APP_URL');
     const resetPasswordEmailURL = `${baseURL}auth/reset-password/${token}`;
     // send the resetYourPassword email
     await this.emailService.sendResetPasswordEmail(user, resetPasswordEmailURL);
 
     return {
+      status: 'success',
       message:
         'A password reset email has been sent to your email address. Please check your inbox.',
     };
@@ -124,9 +138,10 @@ export class AuthService {
       passwordResetToken: null,
       passwordResetExpires: null,
     });
-    
+
     await this.emailService.sendPasswordResetConfirmation(user.email);
     return {
+      status: 'success',
       message:
         'Your password has been reset successfully! You can now log in with your new password.',
     };

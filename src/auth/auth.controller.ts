@@ -44,6 +44,7 @@ export class AuthController {
       );
     }
     return {
+      status: 'success',
       message: 'Email verified successfully.',
     };
   }
