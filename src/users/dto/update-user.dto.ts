@@ -10,13 +10,15 @@ import {
 } from 'class-validator';
 import { Role } from 'src/auth/roles.enum';
 
-export class CreateUserDTO {
+export class UpdateUserDTO {
   @IsEmail()
+  @IsOptional()
   email: string;
 
   @IsNotEmpty()
   @MinLength(8)
   @MaxLength(40)
+  @IsOptional()
   password: string;
 
   @IsAlpha()
@@ -31,5 +33,4 @@ export class CreateUserDTO {
   @IsOptional()
   @IsEnum(Role)
   role: Role;
-
 }

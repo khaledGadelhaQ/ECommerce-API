@@ -54,10 +54,12 @@ export class AuthService {
 
   async register(registerDto: RegisterDTO) {
     // Use the UsersService to create the user
-    const newUser = await this.usersService.createUser(registerDto);
+    await this.usersService.registerUser(registerDto);
 
     return {
-      message: 'User registered successfully',
+      status: 'success',
+      message:
+        'User registered successfully, Please verify your email and log in',
     };
   }
 

@@ -16,8 +16,4 @@ export class RegisterDTO {
   @MinLength(8)
   @MaxLength(80)
   password: string;
-
-  @IsOptional()
-  @IsEnum(Role)
-  role?: Role;
 }
