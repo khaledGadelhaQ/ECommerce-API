@@ -8,7 +8,7 @@ export type UserDocument = HydratedDocument<User> & {
   createResetPasswordToken: () => string;
 };
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ required: true })
   name: string;
@@ -28,12 +28,13 @@ export class User {
   @Prop({ type: Boolean, default: false })
   isVerified: Boolean;
 
-  @Prop({ type: String, default: undefined})
+  @Prop({ type: String, default: undefined })
   passwordResetToken?: string;
 
-  @Prop({ type: Date, default: undefined})
+  @Prop({ type: Date, default: undefined })
   passwordResetExpires?: Date;
 
+  @Prop({ type: String })
   id?: string;
 }
 
@@ -49,24 +50,25 @@ UserSchema.set('toJSON', {
   virtuals: true,
 });
 
-UserSchema.methods.createResetPasswordToken = async function (): Promise<string> {
-  // Generate a random token
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  this.passwordResetToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
-  // Set the token expiration time ( 10 minutes from now)
-  this.passwordResetExpires = Date.now() + (10 * 60 * 1000); // 10 minutes
-  await this.save();
-  return resetToken;
-};
+UserSchema.methods.createResetPasswordToken =
+  async function (): Promise<string> {
+    // Generate a random token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    // Set the token expiration time ( 10 minutes from now)
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await this.save();
+    return resetToken;
+  };
 
 UserSchema.pre<UserDocument>('save', async function (next) {
   try {
     const user = this as UserDocument;
     if (!user.isModified('password')) return next();
-    
+
     const SALT_ROUNDS = 13;
     user.password = await bcrypt.hash(user.password, SALT_ROUNDS);
 
