@@ -9,9 +9,9 @@ import {
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDTO } from './dto/register.dto';
-import { EmailService } from '../common/email';
+import { EmailService } from '../common/services/email';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/users/schemas/user.schema';
+import { UserDocument } from 'src/users/schemas/user.schema';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async generateToken(user: User) {
+  async generateToken(user: UserDocument) {
     const payload = { sub: user.id, email: user.email, role: user.role };
     return this.jwtService.sign(payload);
   }
@@ -54,7 +54,7 @@ export class AuthService {
 
   async register(registerDto: RegisterDTO) {
     // Use the UsersService to create the user
-    await this.usersService.registerUser(registerDto);
+    await this.usersService.createUser(registerDto);
 
     return {
       status: 'success',

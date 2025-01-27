@@ -8,7 +8,11 @@ export type UserDocument = HydratedDocument<User> & {
   createResetPasswordToken: () => string;
 };
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class User {
   @Prop({ required: true })
   name: string;
@@ -33,22 +37,12 @@ export class User {
 
   @Prop({ type: Date, default: undefined })
   passwordResetExpires?: Date;
-
-  @Prop({ type: String })
-  id?: string;
 }
 
 const UserSchema = SchemaFactory.createForClass(User);
 
-// Create a virtual 'id' field that maps to '_id'
-UserSchema.virtual('id').get(function () {
-  return this._id.toHexString();
-});
-
-// Ensure the virtual field is included in JSON responses
-UserSchema.set('toJSON', {
-  virtuals: true,
-});
+// Create a text index for name and email fields
+UserSchema.index({ name: 'text', email: 'text' });
 
 UserSchema.methods.createResetPasswordToken =
   async function (): Promise<string> {

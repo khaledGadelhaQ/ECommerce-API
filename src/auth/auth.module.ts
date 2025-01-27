@@ -9,7 +9,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { EmailService } from 'src/common/email';
+import { EmailService } from 'src/common/services/email';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
 

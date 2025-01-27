@@ -4,11 +4,11 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
@@ -24,23 +24,20 @@ export class UserController {
   @Roles(Role.Admin)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getAll() {
-    const users = await this.userService.findAll();
+  async getAll(@Query() query : any) {
+    const documents = await this.userService.findAll(query);
     return {
       status: 'success',
-      message: `${users.length} user(s) found`,
-      data: { users },
+      message: `${documents.results} user(s) found`,
+      data: documents.data ,
     };
   }
 
   @Roles(Role.Admin)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async getUser(@Param('id', ValidateObjectIdPipe) id: string) {
+  async getOne(@Param('id', ValidateObjectIdPipe) id: string) {
     const user = await this.userService.findOne({ _id: id });
-    if (!user) {
-      throw new HttpException('User was not found!', HttpStatus.NOT_FOUND);
-    }
     return {
       status: 'success',
       data: { user },
@@ -55,9 +52,6 @@ export class UserController {
     @Body() updateUser: UpdateUserDTO,
   ) {
     const user = await this.userService.updateUser(id, updateUser);
-    if (!user) {
-      throw new HttpException('User was not found!', HttpStatus.NOT_FOUND);
-    }
     return {
       status: 'success',
       message: 'User updated successfully!',
@@ -69,7 +63,7 @@ export class UserController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT) // 204 No Content
   async deleteOne(@Param('id', ValidateObjectIdPipe) id: string) {
-    await this.userService.deleteOne(id);
+    await this.userService.delete(id);
     return;
   }
 

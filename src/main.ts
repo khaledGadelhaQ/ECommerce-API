@@ -7,7 +7,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const httpAdapterHost = app.get(HttpAdapterHost);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // Automatically transform payload to DTO types
+      whitelist: true, // Automatically strip properties that do not exist in the DTO class
+      forbidNonWhitelisted: true, // Throw an error if non-whitelisted properties are passed
+      skipMissingProperties: false, // Ensures validation even if properties are missing
+    }),
+  );
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new CatchEverythingFilter(httpAdapterHost));
 
