@@ -13,8 +13,8 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { Roles } from 'src/auth/decorators/role.decorator';
-import { Role } from 'src/auth/roles.enum';
+import { Roles } from 'src/common/decorators/role.decorator';
+import { Role } from 'src/common/enums/roles.enum';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-object-id.pipe';
 
 @Controller('users')

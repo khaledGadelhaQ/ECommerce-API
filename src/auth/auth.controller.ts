@@ -9,14 +9,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './decorators/public.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
 import { newPasswordDTO } from './dto/newPassword.dto';
 
 @Controller('auth')
 @Public()
-export class AuthController { 
+export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')

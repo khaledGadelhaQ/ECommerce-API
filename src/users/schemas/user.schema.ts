@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { Role } from 'src/auth/roles.enum';
+import { Role } from 'src/common/enums/roles.enum';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 

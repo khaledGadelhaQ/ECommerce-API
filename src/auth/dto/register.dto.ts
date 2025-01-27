@@ -7,7 +7,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Role } from '../roles.enum';
 export class RegisterDTO {
   @IsEmail()
   email: string;

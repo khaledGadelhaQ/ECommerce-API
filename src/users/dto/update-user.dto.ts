@@ -8,7 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Role } from 'src/auth/roles.enum';
+import { Role } from 'src/common/enums/roles.enum';
 
 export class UpdateUserDTO {
   @IsEmail()
