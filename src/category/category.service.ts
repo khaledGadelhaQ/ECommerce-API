@@ -13,14 +13,4 @@ export class CategoryService extends BaseService<CategoryDocument> {
   ) {
     super(categoryModel);
   }
-
-  async update(
-    id: string,
-    updateCategoryDto: Partial<CategoryDocument>,
-  ): Promise<CategoryDocument> {
-    if (updateCategoryDto.name) {
-      updateCategoryDto.slug = slugify(updateCategoryDto.name, { lower: true });
-    }
-    return super.update(id,updateCategoryDto);
-  }
 }

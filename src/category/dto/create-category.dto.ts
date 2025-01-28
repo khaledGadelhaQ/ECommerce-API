@@ -2,6 +2,7 @@ import {
   IsAlphanumeric,
   IsOptional,
   IsString,
+  maxLength,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -15,4 +16,9 @@ export class CreateCategoryDTO {
   @IsString()
   @IsOptional()
   image: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  description: string;
 }
