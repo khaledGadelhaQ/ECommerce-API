@@ -37,11 +37,4 @@ export class UsersService extends BaseService<UserDocument> {
     return super.create(user);
   }
 
-  async updateUser(userId: string, updateData: Partial<UserDocument>) {
-    if (updateData?.password) {
-      updateData.password = await bcrypt.hash(updateData.password, 13);
-    }
-    return super.update(userId, updateData);
-  }
-
 }

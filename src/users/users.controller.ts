@@ -51,7 +51,7 @@ export class UserController {
     @Param('id', ValidateObjectIdPipe) id: string,
     @Body() updateUser: UpdateUserDTO,
   ) {
-    const user = await this.userService.updateUser(id, updateUser);
+    const user = await this.userService.update(id, updateUser);
     return {
       status: 'success',
       message: 'User updated successfully!',

@@ -99,7 +99,7 @@ export class AuthService {
       if (!user || user.isVerified) {
         return false;
       }
-      await this.usersService.updateUser(user.id, { isVerified: true });
+      await this.usersService.update(user.id, { isVerified: true });
     } catch (error) {
       return false;
     }
@@ -135,7 +135,7 @@ export class AuthService {
       throw new BadRequestException('Token is invalid or has expired');
     }
 
-    await this.usersService.updateUser(user.id, {
+    await this.usersService.update(user.id, {
       password: newPassword,
       passwordResetToken: null,
       passwordResetExpires: null,

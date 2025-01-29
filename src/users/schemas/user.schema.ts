@@ -14,13 +14,21 @@ export type UserDocument = HydratedDocument<User> & {
   toObject: { virtuals: true },
 })
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: [true, 'Name is required'] })
   name: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({
+    required: [true, 'Email is required'],
+    unique: true,
+    match: [/\S+@\S+\.\S+/, 'Invalid email format'],
+  })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({
+    required: [true, 'Password is required'],
+    minlength: [8, 'Password must be at least 8 characters'],
+    select: false, // Exclude password from query results by default
+  })
   password: string;
 
   @Prop({ type: String, enum: Role, default: Role.Customer })
@@ -70,6 +78,18 @@ UserSchema.pre<UserDocument>('save', async function (next) {
   } catch (error) {
     throw new Error(error.message);
   }
+});
+
+UserSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate() as any;
+
+  // Hash password if it's being updated
+  if (update.password) {
+    const SALT_ROUNDS = 13;
+    update.password = await bcrypt.hash(update.password, SALT_ROUNDS);
+  }
+
+  next();
 });
 
 export { UserSchema };

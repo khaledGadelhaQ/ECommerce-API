@@ -1,36 +1,36 @@
 import {
-  IsAlpha,
   IsBoolean,
   IsEmail,
   IsEnum,
-  IsNotEmpty,
   IsOptional,
-  MaxLength,
+  IsString,
   MinLength,
 } from 'class-validator';
 import { Role } from 'src/common/enums/roles.enum';
 
 export class UpdateUserDTO {
-  @IsEmail()
+  @IsString()
   @IsOptional()
-  email: string;
+  name?: string;
 
-  @IsNotEmpty()
-  @MinLength(8)
-  @MaxLength(40)
+  @IsEmail({}, { message: 'Invalid email format' })
   @IsOptional()
-  password: string;
+  email?: string;
 
-  @IsAlpha()
-  @IsNotEmpty()
+  @IsString()
+  @MinLength(8, { message: 'Password must be at least 8 characters' })
   @IsOptional()
-  name: string;
+  password?: string;
 
+  @IsEnum(Role, { message: 'Invalid role' })
   @IsOptional()
+  role?: Role;
+
   @IsBoolean()
-  isVerified: boolean;
-
   @IsOptional()
-  @IsEnum(Role)
-  role: Role;
+  active?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isVerified?: boolean;
 }
