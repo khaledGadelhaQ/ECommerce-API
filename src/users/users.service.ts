@@ -18,7 +18,7 @@ export class UsersService extends BaseService<UserDocument> {
     email: string,
     password: string,
   ): Promise<UserDocument | null> {
-    const user = await this.userModel.findOne({ email }).exec();
+    const user = await this.userModel.findOne({ email }).select('+password').exec();
     if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
