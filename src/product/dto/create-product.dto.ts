@@ -13,8 +13,8 @@ import {
 
 export class CreateProductDto {
   @IsString()
-  @IsNotEmpty({ message: 'Title is required.' })
-  title: string;
+  @IsNotEmpty({ message: 'Name is required.' })
+  name: string;
 
   @IsString()
   @IsOptional()

@@ -13,7 +13,7 @@ import {
 export class UpdateProductDto {
   @IsString()
   @IsOptional()
-  title?: string;
+  name?: string;
 
   @IsString()
   @IsOptional()

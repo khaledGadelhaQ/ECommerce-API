@@ -11,7 +11,7 @@ export type ProductDocument = HydratedDocument<Product>;
 })
 export class Product {
   @Prop({ type: String, required: true, trim: true })
-  title: string;
+  name: string;
 
   @Prop({ type: String, lowercase: true, unique: true, index: true })
   slug: string;
@@ -102,7 +102,7 @@ export class Product {
 }
 const ProductSchema = SchemaFactory.createForClass(Product);
 
-ProductSchema.index({ description: 'text', title: 'text' });
+ProductSchema.index({ description: 'text', name: 'text' });
 
 ProductSchema.virtual('priceAfterDiscount').get(function () {
   return this.discountPercentage
@@ -111,8 +111,8 @@ ProductSchema.virtual('priceAfterDiscount').get(function () {
 });
 
 ProductSchema.pre('save', function (next) {
-  if (this.isModified('title')) {
-    this.slug = slugify(this.title, { lower: true });
+  if (this.isModified('name')) {
+    this.slug = slugify(this.name, { lower: true });
   }
   next();
 });
@@ -120,8 +120,8 @@ ProductSchema.pre('save', function (next) {
 // Middleware to auto-generate `slug` on updates as well
 ProductSchema.pre('findOneAndUpdate', function (next) {
   const update = this.getUpdate() as any;
-  if (update.title) {
-    update.slug = slugify(update.title, { lower: true });
+  if (update.name) {
+    update.slug = slugify(update.name, { lower: true });
   }
   next();
 });
