@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ApiFeatures } from './api-features';
 
@@ -24,10 +24,10 @@ export class BaseService<T> {
     return { results: count, data: documents };
   }
 
-  async findOne(query: any): Promise<T> {
-    const document = await this.model.findOne(query);
+  async findOne(query: any, session?: ClientSession): Promise<T> {
+    const document = await this.model.findOne(query).session(session);
     if (!document) {
-      throw new NotFoundException(`Document was not found`);
+      throw new NotFoundException(`${this.model.modelName} was not found`);
     }
     return document;
   }
@@ -38,7 +38,7 @@ export class BaseService<T> {
       runValidators: true,
     });
     if (!updatedDocument) {
-      throw new NotFoundException(`Document with ID ${id} not found`);
+      throw new NotFoundException(`${this.model.modelName} with ID ${id} not found`);
     }
     return updatedDocument;
   }
@@ -46,7 +46,7 @@ export class BaseService<T> {
   async delete(id: string): Promise<void> {
     const result = await this.model.findByIdAndDelete(id);
     if (!result) {
-      throw new NotFoundException(`Document with ID ${id} not found`);
+      throw new NotFoundException(`${this.model.modelName} with ID ${id} not found`);
     }
   }
 }
