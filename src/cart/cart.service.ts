@@ -1,16 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart, CartDocument } from './schemas/cart.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { CartProductDTO } from './dto/cart-product.dto';
 import { ProductService } from 'src/product/product.service';
+import { BaseService } from 'src/common/services/base.service';
 
 @Injectable()
-export class CartService {
+export class CartService extends BaseService<CartDocument> {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<CartDocument>,
     private readonly productService: ProductService,
-  ) {}
+  ) {
+    super(cartModel);
+  }
 
   /**
    * Calculates and updates the total cart price.
@@ -138,5 +141,17 @@ export class CartService {
     await cart.save();
 
     return cart;
+  }
+
+  async clearCart(cartId: string, session?: ClientSession): Promise<void> {
+    await this.cartModel.findByIdAndUpdate(
+      { _id: cartId },
+      {
+        cartItems: [],
+        totalCartPrice: 0,
+        totalCartPriceAfterDiscount: undefined,
+      },
+      { session },
+    );
   }
 }

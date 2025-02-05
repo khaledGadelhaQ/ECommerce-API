@@ -11,8 +11,12 @@ export class BaseService<T> {
     return this.model.create(data);
   }
 
-  async findAll(query: any): Promise<{ results: number; data: T[] }> {
-    const apiFeatures = new ApiFeatures(this.model.find(), query)
+  async findAll(
+    query: any,
+    filterObject?: any,
+  ): Promise<{ results: number; data: T[] }> {
+    const queryFilter = filterObject || {};
+    const apiFeatures = new ApiFeatures(this.model.find(queryFilter), query)
       .filter()
       .sort()
       .limitFields()
@@ -20,7 +24,7 @@ export class BaseService<T> {
       .search();
 
     const documents = await apiFeatures.query;
-    const count = await this.model.countDocuments(apiFeatures.filterQuery);
+    const count = await this.model.countDocuments(queryFilter);
     return { results: count, data: documents };
   }
 
@@ -38,7 +42,9 @@ export class BaseService<T> {
       runValidators: true,
     });
     if (!updatedDocument) {
-      throw new NotFoundException(`${this.model.modelName} with ID ${id} not found`);
+      throw new NotFoundException(
+        `${this.model.modelName} with ID ${id} not found`,
+      );
     }
     return updatedDocument;
   }
@@ -46,7 +52,9 @@ export class BaseService<T> {
   async delete(id: string): Promise<void> {
     const result = await this.model.findByIdAndDelete(id);
     if (!result) {
-      throw new NotFoundException(`${this.model.modelName} with ID ${id} not found`);
+      throw new NotFoundException(
+        `${this.model.modelName} with ID ${id} not found`,
+      );
     }
   }
 }
