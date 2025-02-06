@@ -87,6 +87,7 @@ export class Product {
     default: 0,
     min: [0, 'Rating must be at least 0'],
     max: [5, 'Rating must not exceed 5'],
+    set: (val: number) => Math.round(val * 10) / 10,
   })
   averageRating: number;
 
@@ -96,10 +97,8 @@ export class Product {
     min: [0, 'Number of ratings must be at least 0'],
   })
   ratingsQuantity: number;
-
-  // @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'Review', default: [] })
-  // reviews: string[];
 }
+
 const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.index({ description: 'text', name: 'text' });

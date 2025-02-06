@@ -7,7 +7,7 @@ import {
 import { BaseService } from 'src/common/services/base.service';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { ClientSession, connection, Model } from 'mongoose';
+import { ClientSession, connection, FilterQuery, Model } from 'mongoose';
 import { AddressDto } from './dto/address.dto';
 import { PaymentMethod } from 'src/common/enums/payment-method.enum';
 import { OrderStatus } from 'src/common/enums/order-status.enum';
@@ -36,6 +36,10 @@ export class OrderService extends BaseService<OrderDocument> {
     this.stripe = new Stripe(
       this.configService.get<string>('STRIPE_SECRET_KEY'),
     );
+  }
+
+  async exists(filter: FilterQuery<OrderDocument>): Promise<boolean> {
+    return !!(await this.orderModel.exists(filter));
   }
 
   async validateCartItems(
