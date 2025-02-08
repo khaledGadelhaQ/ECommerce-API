@@ -31,6 +31,9 @@ export class User {
   })
   password: string;
 
+  @Prop({ type: String, default: 'default.image.jpeg' })
+  profileImage: string;
+
   @Prop({ type: String, enum: Role, default: Role.Customer })
   role: Role;
 

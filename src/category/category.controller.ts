@@ -9,6 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from 'src/common/enums/roles.enum';
@@ -17,24 +20,24 @@ import { CategoryService } from './category.service';
 import { UpdateCategoryDTO } from './dto/update-category.dto';
 import { CreateCategoryDTO } from './dto/create-category.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('category')
 export class CategoryController {
-
-  constructor(private readonly categoryService: CategoryService){}
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Public()
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getAll(@Query() query : any) {
+  async getAll(@Query() query: any) {
     const documents = await this.categoryService.findAll(query);
     return {
       status: 'success',
       message: `${documents.results} category(s) found`,
-      data: documents.data ,
+      data: documents.data,
     };
   }
-  
+
   @Public()
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -78,6 +81,22 @@ export class CategoryController {
       status: 'success',
       message: 'Category created successfully!',
       data: { category },
+    };
+  }
+
+  @Roles(Role.Admin)
+  @HttpCode(HttpStatus.OK)
+  @Post('/upload-image/:id')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadProfile(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id', ValidateObjectIdPipe) id: string,
+  ) {
+    const imageUrl = await this.categoryService.uploadImage(id, file);
+    return {
+      status: 'success',
+      message: 'Category image has been uploaded successfully',
+      imageUrl,
     };
   }
 }

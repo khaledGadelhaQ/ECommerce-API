@@ -9,6 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
@@ -16,6 +19,7 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from 'src/common/enums/roles.enum';
 import { ValidateObjectIdPipe } from 'src/common/pipes/validate-object-id.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UserController {
@@ -24,12 +28,12 @@ export class UserController {
   @Roles(Role.Admin)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getAll(@Query() query : any) {
+  async getAll(@Query() query: any) {
     const documents = await this.userService.findAll(query);
     return {
       status: 'success',
       message: `${documents.results} user(s) found`,
-      data: documents.data ,
+      data: documents.data,
     };
   }
 
@@ -76,6 +80,24 @@ export class UserController {
       status: 'success',
       message: 'New user created successfully!',
       data: { user },
+    };
+  }
+
+  @Roles(Role.Customer)
+  @HttpCode(HttpStatus.OK)
+  @Post('/upload-profile')
+  @UseInterceptors(
+    FileInterceptor('profileImage'),
+  )
+  async uploadProfile(@UploadedFile() file: Express.Multer.File, @Req() req) {
+    const imageUrl = await this.userService.uploadProfileImage(
+      req.user.id,
+      file,
+    );
+    return {
+      status: 'success',
+      message: 'Your profile Image has been uploaded successfully',
+      imageUrl,
     };
   }
 }

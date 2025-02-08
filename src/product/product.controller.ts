@@ -10,6 +10,8 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from 'src/common/enums/roles.enum';
@@ -19,6 +21,8 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CategoryService } from 'src/category/category.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
 
 @Controller('product')
 export class ProductController {
@@ -96,6 +100,42 @@ export class ProductController {
       status: 'success',
       message: 'Category created successfully!',
       data: { product },
+    };
+  }
+
+  @Roles(Role.Admin)
+  @Post('upload/:id')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'imageCover', maxCount: 1 },
+        { name: 'images', maxCount: 5 },
+      ],
+      {
+        storage: multer.memoryStorage(),
+      },
+    ),
+  )
+  async uploadImages(
+    @UploadedFiles()
+    files: {
+      imageCover?: Express.Multer.File[];
+      images?: Express.Multer.File[];
+    },
+    @Param('id', ValidateObjectIdPipe) id: string,
+  ) {
+    const { imageCoverUrl, imagesUrls } =
+      await this.productService.uploadImages(
+        id,
+        files.imageCover[0],
+        files.images || [],
+      );
+    return {
+      status: 'success',
+      message: 'Product images uploaded successfully',
+      imageCover: imageCoverUrl,
+      images: imagesUrls,
     };
   }
 }

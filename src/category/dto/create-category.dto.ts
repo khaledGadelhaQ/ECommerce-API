@@ -15,10 +15,6 @@ export class CreateCategoryDTO {
 
   @IsString()
   @IsOptional()
-  image: string;
-
-  @IsString()
-  @IsOptional()
   @MaxLength(500)
   description: string;
 }

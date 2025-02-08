@@ -35,13 +35,6 @@ export class Category {
   @Prop({
     type: String,
     default: 'default.category.jpg',
-    validate: {
-      validator: function (value: string): boolean {
-        // Basic URL format validation
-        return /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))$/.test(value) || value === '';
-      },
-      message: 'Image must be a valid URL pointing to an image file.',
-    },
   })
   image: string;
 
