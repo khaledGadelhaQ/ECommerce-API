@@ -47,7 +47,7 @@ export class ProductController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   async getOne(@Param('id', ValidateObjectIdPipe) id: string) {
-    const product = await this.productService.findOne({ _id: id });
+    const product = await this.productService.findOne(id);
     return {
       status: 'success',
       data: { product },
@@ -69,7 +69,7 @@ export class ProductController {
         throw new BadRequestException('Category does not exist');
       }
     }
-    const product = await this.productService.update(id, updateProductDto);
+    const product = await this.productService.updateOne(id, updateProductDto);
     return {
       status: 'success',
       message: 'Product updated successfully!',
@@ -81,14 +81,14 @@ export class ProductController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT) // 204 No Content
   async deleteOne(@Param('id', ValidateObjectIdPipe) id: string) {
-    await this.productService.delete(id);
+    await this.productService.deleteOne(id);
     return;
   }
 
   @Roles(Role.Admin)
   @Post()
   @HttpCode(HttpStatus.CREATED) // 201 Created
-  async createUser(@Body() createProductDto: CreateProductDto) {
+  async createProduct(@Body() createProductDto: CreateProductDto) {
     const categoryExists = await this.categoryService.findOne({
       _id: createProductDto.category,
     });
@@ -98,7 +98,7 @@ export class ProductController {
     const product = await this.productService.create(createProductDto);
     return {
       status: 'success',
-      message: 'Category created successfully!',
+      message: 'Product created successfully!',
       data: { product },
     };
   }

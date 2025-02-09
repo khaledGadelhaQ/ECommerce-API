@@ -53,10 +53,7 @@ export class OrderService extends BaseService<OrderDocument> {
     }
     // 2) Validate prices and stock
     for (const item of cart.cartItems) {
-      const product = await this.productService.findOne(
-        { _id: item.product },
-        session,
-      );
+      const product = await this.productService.findOne(item.product as string, session);
       if (item.price !== product.price) {
         throw new BadRequestException(`Price of ${product.name} has changed`);
       }
@@ -123,7 +120,7 @@ export class OrderService extends BaseService<OrderDocument> {
 
     let lineItems = [];
     for (const item of cart.cartItems) {
-      const product = await this.productService.findOne({ _id: item.product });
+      const product = await this.productService.findOne(item.product as string);
 
       const stripeProduct = await this.stripe.products.create({
         name: product.name,

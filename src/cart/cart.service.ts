@@ -52,7 +52,7 @@ export class CartService extends BaseService<CartDocument> {
     const { productID, quantity } = cartProduct;
 
     // Fetch product details from database
-    const product = await this.productService.findOne({ _id: productID });
+    const product = await this.productService.findOne(productID);
     if (!product) {
       throw new NotFoundException('Product not found');
     }

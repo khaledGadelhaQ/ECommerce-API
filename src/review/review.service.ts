@@ -27,7 +27,7 @@ export class ReviewService extends BaseService<ReviewDocument> {
     const { user: userId, product: productId, rating } = review;
 
     // check if product exits
-    const product = await this.productService.findOne({ _id: productId });
+    const product = await this.productService.findOne(productId);
     if (!product) throw new NotFoundException('Product not found!');
     // check if user purchased the product
     const order = await this.hasUserPurchasedProduct(userId, productId);
