@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { CatchEverythingFilter } from './common/filters/catch-everything.filter';
 import * as express from 'express'; // Fix import to avoid issues
 
+import helmet from 'helmet';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const httpAdapterHost = app.get(HttpAdapterHost);
@@ -11,10 +13,10 @@ async function bootstrap() {
   // Global Validation Pipe
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true, 
-      whitelist: true, 
-      forbidNonWhitelisted: true, 
-      skipMissingProperties: false, 
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: false,
     }),
   );
 
@@ -23,10 +25,14 @@ async function bootstrap() {
 
   // Global Exception Filter
   app.useGlobalFilters(new CatchEverythingFilter(httpAdapterHost));
+  app.use(helmet());
 
   // ✅ Ensure Express raw body middleware is applied BEFORE body-parsing middleware
   const expressInstance = app.getHttpAdapter().getInstance();
-  expressInstance.use('/api/v1/order/webhook-checkout/', express.raw({ type: 'application/json' }));
+  expressInstance.use(
+    '/api/v1/order/webhook-checkout/',
+    express.raw({ type: 'application/json' }),
+  );
 
   const port = process.env.PORT || 2000;
   await app.listen(port);
