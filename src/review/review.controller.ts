@@ -85,6 +85,7 @@ export class ReviewController {
   }
 
   @Delete('/:id')
+  @Roles(Role.Customer)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteOne(@Param('id', ValidateObjectIdPipe) id: string, @Req() req) {
     await this.reviewService.deleteOne(id, req);
