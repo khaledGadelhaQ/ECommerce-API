@@ -18,7 +18,7 @@ Welcome to the **Ecommerce API**! This is a robust, scalable, and feature-rich b
    - **Create/Update/Delete Products**: Admins can manage products.
    - **Product Search & Filtering**: Advanced search, filtering, and sorting capabilities.
    - **Image Upload**: Product images are stored in **AWS S3**.
-   - **Caching**: Frequently accessed product data is cached using **Redis** (works only on `localhost`) for improved performance.
+   - **Caching**: Frequently accessed product data is cached using **Redis** for improved performance.
 
 ### 3. **Shopping Cart**
    - **Add/Remove Products**: Users can manage their cart.
@@ -26,7 +26,7 @@ Welcome to the **Ecommerce API**! This is a robust, scalable, and feature-rich b
 
 ### 4. **Order Processing**
    - **Place Orders**: Users can place orders with **cash-on-delivery** or **Stripe** payment integration.
-     - **Mongoose Sessions**: Used to ensure atomicity during payment processing with `startTransaction()`.
+     - **Mongoose Sessions**: Used to ensure atomicity during payment processing.
    - **Order Tracking**: Admins can update order status (e.g., Pending, Shipped, Delivered).
    - **Order History**: Users can view their past orders.
 
