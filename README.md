@@ -1,8 +1,4 @@
 
-<h1 align='center'>
-  <img src="https://github.com/khaledGadelhaQ/ecommerce-api/blob/main/ECommerce-API.png" alt="ECommere-API" width="1200" height="400">
-</h1>
-
 # Ecommerce API 🛒
 
 Welcome to the **Ecommerce API**! This is a robust, scalable, and feature-rich backend solution designed to power modern e-commerce platforms. Built with **NestJS**, this API handles everything from user authentication and product management to order processing and payment integration. It also incorporates advanced technologies like **Redis**, **AWS S3**, **Stripe**, and more to ensure high performance, security, and reliability.
